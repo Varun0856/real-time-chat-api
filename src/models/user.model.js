@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -44,14 +45,34 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    lastSeen: {type: Date},
-    avatarUrl: {type: String}
+    lastSeen: {
+        type: Date,
+        default: Date.now
+    },
+    avatarUrl: {type: String},
+    refreshToken: {
+        type: String,
+        select: false
+    }
 }, {
     timestamps: true,
 });
 
 userSchema.index({ username: 1}, { unique: true });
 userSchema.index({ email: 1}, { unique: true });
+
+userSchema.pre("save", async function(next){
+    if(!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+})
+
+userSchema.methods.isPasswordCorrect = async function(password) {
+    if(!this.password){
+        throw new Error("Password not set for user document")
+    }
+    return await bcrypt.compare(password, this.password);
+}
 
 const User = mongoose.models.User ||  mongoose.model('User', userSchema);
 
