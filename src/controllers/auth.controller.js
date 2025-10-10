@@ -42,7 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 })
 
-const login = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
     const {username, email, password} = req.body;
     if(!(username || email)){
         throw new ApiError(400, "username or email is required");
@@ -77,3 +77,5 @@ const login = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, { httpOnly: true, secure: false })
         .json(new ApiResponse(200, {user: safeUser, accessToken}, "Login Successful"));
 })
+
+export {registerUser, loginUser};
