@@ -3,7 +3,34 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import bcrypt from "bcrypt"
-import { generateAccessToken, generateRefreshToken } from "../utils/tokenUtils.js";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/tokenUtils.js";
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken = req.cookies?.refreshToken || req.headers["x-refresh-token"];
+
+    if(!incomingRefreshToken) {
+        throw new ApiError(401, "Refresh token missing");
+    }
+
+    let decodedToken;
+    try {
+        decodedToken = verifyRefreshToken(incomingRefreshToken);
+    } catch (err) {
+        throw new ApiError(403, "Invalid or expired refresh token");
+    }
+
+    const user = await User.findById(decodedToken.userId).select("+refreshToken");
+    if(!user) throw new ApiError(404, "User not found");
+
+    if(user.refreshToken !== incomingRefreshToken)
+        throw new ApiError(403, "Token mismatch or reused refresh token");
+
+    const newAccessToken = generateAccessToken(user._id);
+
+    res.status(200).cookie("accessToken", newAccessToken, { httpOnly: true, secure: false }).json(
+        new ApiResponse(200, {accessToken: newAccessToken}, "Access token refreshed successfully")
+    )
+});
 
 const registerUser = asyncHandler(async (req, res) => {
     const {username, firstname, lastname, email, password, avatarUrl} = req.body;
@@ -78,4 +105,25 @@ const loginUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {user: safeUser, accessToken}, "Login Successful"));
 })
 
-export {registerUser, loginUser};
+const logoutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user_id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        }
+    )
+    return res.status(200).clearCookie("accessToken", {
+        httpOnly: true, secure: false
+    }).clearCookie("refreshToken", {
+        httpOnly: true, secure: false
+    }).json(
+        new ApiResponse(200, {}, "User logged out successfully")
+    );
+})
+
+export {refreshAccessToken,registerUser, loginUser, logoutUser};
