@@ -89,6 +89,10 @@ const updateRoom = asyncHandler(async (req, res) => {
 
     if(!room) throw new ApiError(404, "Room not found");
 
+    if(req.user._id.toString() !== room.createdBy.toString()){
+        throw new ApiError(403, "Only room creator can update");
+    }
+
     room.roomName = roomName || room.roomName;
     room.description = description || room.description;
 
