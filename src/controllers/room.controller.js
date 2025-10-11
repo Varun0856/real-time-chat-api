@@ -30,6 +30,9 @@ const joinRoom = asyncHandler(async(req, res) => {
      if(!room){
         throw new ApiError(404, "Room not found")
     }
+
+    if(!room) throw new ApiError(404, "Cannot join private room");
+
     const userId = req.user._id;
     const exists = room.members.some(
         memberId => memberId.toString() === userId.toString()
@@ -130,5 +133,13 @@ const getRoomById = asyncHandler(async(req, res) => {
     );
 });
 
-export {createRoom, joinRoom, leaveRoom, updateRoom, getUserRooms,getRoomById};
+const getPublicRooms = asyncHandler(async(req, res) => {
+    const rooms = await Room.find({roomType: 'public'}).populate('createdBy', 'username');
+
+    res.status(200).json(
+        new ApiResponse(200, rooms, "Public rooms fetched")
+    );
+});
+
+export {createRoom, joinRoom, leaveRoom, updateRoom, getUserRooms,getRoomById, getPublicRooms};
 
