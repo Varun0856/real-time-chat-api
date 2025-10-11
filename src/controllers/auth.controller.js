@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import bcrypt from "bcrypt"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/tokenUtils.js";
+import { NODE_ENV } from "../config/env.js";
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies?.refreshToken || req.headers["x-refresh-token"];
@@ -27,7 +28,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const newAccessToken = generateAccessToken(user._id);
 
-    res.status(200).cookie("accessToken", newAccessToken, { httpOnly: true, secure: false }).json(
+    res.status(200).cookie("accessToken", newAccessToken, { httpOnly: true, secure: NODE_ENV === "production" }).json(
         new ApiResponse(200, {accessToken: newAccessToken}, "Access token refreshed successfully")
     )
 });
@@ -82,7 +83,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User does not exist");
     }
 
-    const isPassword = user.isPasswordCorrect(password);
+    const isPassword = await user.isPasswordCorrect(password);
 
     if(!isPassword){
         throw new ApiError(401,"Invalid credentials")
@@ -92,6 +93,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const refreshToken = generateRefreshToken(user._id);
 
     user.refreshToken = refreshToken;
+    user.isOnline = true;
     await user.save({ validateBeforeSave: false});
 
     const safeUser = user.toObject();
@@ -100,17 +102,18 @@ const loginUser = asyncHandler(async (req, res) => {
 
     res
         .status(200)
-        .cookie("accessToken", accessToken, { httpOnly: true, secure: false })
-        .cookie("refreshToken", refreshToken, { httpOnly: true, secure: false })
+        .cookie("accessToken", accessToken, { httpOnly: true, secure: NODE_ENV === "production" })
+        .cookie("refreshToken", refreshToken, { httpOnly: true, secure: NODE_ENV === "production" })
         .json(new ApiResponse(200, {user: safeUser, accessToken}, "Login Successful"));
 })
 
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
-        req.user_id,
+        req.user._id,
         {
             $set: {
-                refreshToken: undefined
+                refreshToken: undefined,
+                isOnline: false
             }
         },
         {
@@ -118,9 +121,9 @@ const logoutUser = asyncHandler(async (req, res) => {
         }
     )
     return res.status(200).clearCookie("accessToken", {
-        httpOnly: true, secure: false
+        httpOnly: true, secure: NODE_ENV === "production"
     }).clearCookie("refreshToken", {
-        httpOnly: true, secure: false
+        httpOnly: true, secure: NODE_ENV === "production"
     }).json(
         new ApiResponse(200, {}, "User logged out successfully")
     );

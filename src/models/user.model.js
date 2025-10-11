@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         validate: {
             validator: (v) => validator.isEmail(v),
-            message: (props) => `${props.value} is not a value field`
+            message: (props) => `${props.value} is not a value email`
         }
     },
     password: {
@@ -57,9 +57,6 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
-
-userSchema.index({ username: 1}, { unique: true });
-userSchema.index({ email: 1}, { unique: true });
 
 userSchema.pre("save", async function(next){
     if(!this.isModified("password")) return next();
