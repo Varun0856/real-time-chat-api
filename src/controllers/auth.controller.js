@@ -61,10 +61,6 @@ const registerUser = asyncHandler(async (req, res) => {
     const safeUser = newUser.toObject();
     delete safeUser.password;
 
-    if(!newUser){
-        throw new ApiError(500, "Something went wrong, please try again later!")
-    }
-
     res.status(201).json(
         new ApiResponse(201, safeUser, "User registered successfully")
     );
