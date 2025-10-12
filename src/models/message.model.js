@@ -19,17 +19,14 @@ const messageSchema = new mongoose.Schema({
   },
   messageType: {
     type: String,
-    enum: ['text', 'audio', 'video'],
+    enum: ['text', 'image'],
     default: 'text',
   },
-  deliveredAt: {
-    type: Date,
-    default: Date.now
+  imageUrl: {
+    type: String,
   },
-  readBy: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+}, {
+    timestamps: true
 });
 
 const Message = mongoose.models.Message || mongoose.model('Message', messageSchema);
