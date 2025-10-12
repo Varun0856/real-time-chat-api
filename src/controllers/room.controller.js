@@ -81,7 +81,7 @@ const updateRoom = asyncHandler(async (req, res) => {
     const {roomId} = req.params;
     const {roomName, description} = req.body;
 
-    if(!roomName && !description){
+    if(!(roomName?.trim()) && !(description?.trim())){
         throw new ApiError(400, "Provide at least one field to update")
     }
 
