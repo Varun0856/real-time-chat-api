@@ -31,7 +31,7 @@ const joinRoom = asyncHandler(async(req, res) => {
         throw new ApiError(404, "Room not found")
     }
 
-    if(!room) throw new ApiError(404, "Cannot join private room");
+    if(room.roomType === 'private') throw new ApiError(404, "Cannot join private room");
 
     const userId = req.user._id;
     const exists = room.members.some(
@@ -127,7 +127,8 @@ const getRoomById = asyncHandler(async(req, res) => {
         const isMember = room.members.some(
             memberID => memberID.toString() === req.user?._id.toString() 
         );
-        if(!isMember){
+        const isCreator = room.createdBy.toString() === req.user?._id;
+        if(!isMember && !isCreator){
             throw new ApiError(403, "Access Denied");
         }
     }
