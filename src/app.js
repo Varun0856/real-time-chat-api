@@ -24,7 +24,8 @@ app.get('/', (req, res) => {
             updateRoom: 'PATCH /api/v1/room/:roomId',
             leaveRoom: 'DELETE /api/v1/room/:roomId/members',
             getUserRooms: 'GET /api/v1/room',
-            getRoomById: 'GET /api/v1/room/:roomId'
+            getRoomById: 'GET /api/v1/room/:roomId',
+            getPublicRooms: 'GET /api/v1/room/public'
         },
     })
 })
