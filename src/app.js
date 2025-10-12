@@ -2,6 +2,8 @@ import cookieParser from 'cookie-parser';
 import express from 'express'
 import authRouter from './routes/auth.route.js';
 import roomRouter from './routes/room.route.js';
+import { getMessages } from './controllers/message.controller.js';
+import messageRouter from './routes/message.route.js';
 
 const app = express();
 
@@ -25,12 +27,12 @@ app.get('/', (req, res) => {
             leaveRoom: 'DELETE /api/v1/room/:roomId/members',
             getUserRooms: 'GET /api/v1/room',
             getRoomById: 'GET /api/v1/room/:roomId',
-            getPublicRooms: 'GET /api/v1/room/public'
+            getPublicRooms: 'GET /api/v1/room/public',
+            getMessages: 'GET /api/v1/room/:roomId/messages'
         },
     })
 })
 
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/room', roomRouter);
 
 export default app;
