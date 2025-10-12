@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({
-  chatRoomId: {
+  chatRoom: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
     required: true
