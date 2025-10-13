@@ -12,6 +12,6 @@ roomRouter.delete('/:roomId/members', verifyJWT, leaveRoom);
 roomRouter.patch('/:roomId', verifyJWT, updateRoom);
 roomRouter.get('/:roomId', verifyJWT, getRoomById);
 
-roomRouter.get('/:roomId/messages', verifyJWT, messageRouter);
+roomRouter.use('/:roomId/messages', verifyJWT, messageRouter);
 
 export default roomRouter;
