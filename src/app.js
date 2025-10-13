@@ -2,8 +2,6 @@ import cookieParser from 'cookie-parser';
 import express from 'express'
 import authRouter from './routes/auth.route.js';
 import roomRouter from './routes/room.route.js';
-import { getMessages } from './controllers/message.controller.js';
-import messageRouter from './routes/message.route.js';
 
 const app = express();
 
