@@ -2,7 +2,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { verifyAccessToken } from "../../utils/tokenUtils.js";
 
 const authMiddleware = (socket, next) => {
-    const token  = socket.handshake.auth.token;
+    const token  = socket.handshake.auth?.token || socket.handshake.query?.token;
     if(!token) {
         throw new ApiError(401, "No token found")
     }
