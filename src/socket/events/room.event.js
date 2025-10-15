@@ -1,3 +1,4 @@
+import logger from "../../utils/winstonLogger.js";
 export default function registerRoomEvents(io, socket) {
     socket.on('join-room', (roomId) => {
         socket.join(roomId);
