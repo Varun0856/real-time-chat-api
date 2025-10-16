@@ -2,9 +2,9 @@ import User from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
-import bcrypt from "bcrypt"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/tokenUtils.js";
 import { NODE_ENV } from "../config/env.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies?.refreshToken || req.headers["x-refresh-token"];
@@ -34,7 +34,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const registerUser = asyncHandler(async (req, res) => {
-    const {username, firstname, lastname, email, password, avatarUrl} = req.body;
+    const {username, firstname, lastname, email, password} = req.body;
     if([username, firstname, lastname, email, password].some((fields) => {
         return !fields || fields?.trim() === "";
     })) {
@@ -47,6 +47,13 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User with username or email already exists")
     }
 
+    const avatarLocalPath = req.file?.path;
+    if(!avatarLocalPath) {
+        throw new ApiError(400, 'Avatar file is required');
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
     // password is hashed using the pre-save hook of database
     const newUser = await User.create({
         username, 
@@ -55,7 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email,
         password,
         isOnline: false,
-        avatarUrl
+        avatarUrl: avatar.url
     });
 
     const safeUser = newUser.toObject();
