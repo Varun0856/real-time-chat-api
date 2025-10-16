@@ -17,7 +17,7 @@ export default function registerMessageEvents(io, socket) {
         }
 
         const isMember = room.members.some(
-            m => m.toString() === socket.user.userId
+            m => m.toString() === socket.user.userId.toString()
         );
 
         if(!isMember){
