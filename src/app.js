@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express'
 import authRouter from './routes/auth.route.js';
 import roomRouter from './routes/room.route.js';
+import uploadRouter from './routes/upload.route.js';
 
 const app = express();
 
@@ -33,5 +34,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/room', roomRouter);
+app.use('/api/v1/upload', uploadRouter);
 
 export default app;
