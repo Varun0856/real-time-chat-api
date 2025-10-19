@@ -24,6 +24,9 @@ const messageSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
+    required: function() {
+      return this.messageType == 'image'
+    }
   },
 }, {
     timestamps: true
