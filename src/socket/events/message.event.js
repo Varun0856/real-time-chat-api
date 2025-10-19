@@ -1,12 +1,33 @@
 import Message from "../../models/message.model.js";
 import Room from "../../models/room.model.js";
+import isValidCloudinaryUrl from "../../utils/verifyImageUrl.js";
 import logger from "../../utils/winstonLogger.js";
 
 export default function registerMessageEvents(io, socket) {
-    socket.on('send-message', async ({roomId, content, messageType}) => {
-        if(!content?.trim()) {
+    socket.on('send-message', async ({roomId, content, messageType, imageUrl}) => {
+
+        if(!['text', 'image'].includes(messageType)){
             socket.emit('error', {
-                message: 'Message content required'
+                message: 'Invalid message type'
+            });
+            return;
+        }
+
+        if(!content?.trim() && messageType == 'text') {
+            socket.emit('error', {
+                message: 'Text content required'
+            });
+            return;
+        }
+        if(messageType == 'image' && !imageUrl?.trim()){
+            socket.emit('error', {
+                message: 'Image URL required'
+            });
+            return;
+        }
+        if(!isValidCloudinaryUrl(imageUrl)){
+            socket.emit('error', {
+                message: 'Invalid image Url'
             });
             return;
         }
@@ -30,7 +51,8 @@ export default function registerMessageEvents(io, socket) {
                 chatRoom: roomId,
                 sender: socket.user.userId,
                 content,
-                messageType
+                messageType,
+                imageUrl,
             });
     
             socket.to(roomId).emit('new-message', {
@@ -38,13 +60,15 @@ export default function registerMessageEvents(io, socket) {
                 sender: socket.user.userId,
                 content,
                 messageType,
+                imageUrl,
                 createdAt: message.createdAt,
             });
             socket.emit('new-message', {
                 _id: message._id,
                 sender: socket.user.userId,
-                content,
-                messageType,
+                content: message.content,
+                messageType: message.messageType,
+                imageUrl: message.imageUrl,
                 createdAt: message.createdAt
             })
         } catch (error) {
