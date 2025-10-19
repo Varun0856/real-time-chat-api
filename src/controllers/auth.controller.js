@@ -96,7 +96,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const refreshToken = generateRefreshToken(user._id);
 
     user.refreshToken = refreshToken;
-    user.isOnline = true;
+    // user.isOnline = true;
     await user.save({ validateBeforeSave: false});
 
     const safeUser = user.toObject();
@@ -116,7 +116,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         {
             $set: {
                 refreshToken: undefined,
-                isOnline: false
+                // isOnline: false
             }
         },
         {
