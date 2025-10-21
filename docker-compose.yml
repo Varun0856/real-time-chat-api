@@ -1,0 +1,26 @@
+services:
+  mongo: 
+    image: mongo:7
+    container_name: chat-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+  app: 
+    build: .
+    container_name: realtime-chat-api
+    ports: 
+      - "8080:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/chat-db
+        NODE_ENV=production
+    env_file:
+      - .env.development.local
+    depends_on:
+      - mongo
+    restart: always
+
+volumes:
+  mongo_data:
