@@ -29,7 +29,7 @@ const startServer = async () => {
         // app.listen(PORT, () => {
         //     logger.info(`Server started on port: ${PORT}`);
         // })
-        server.listen(PORT, () => {
+        server.listen(PORT || 3000, '0.0.0.0', () => {
             logger.info(`Server started on port: ${PORT}`)
         })
     } catch (error) {
