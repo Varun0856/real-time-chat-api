@@ -27,7 +27,8 @@ app.get('/', (req, res) => {
             getUserRooms: 'GET /api/v1/room',
             getRoomById: 'GET /api/v1/room/:roomId',
             getPublicRooms: 'GET /api/v1/room/public',
-            getMessages: 'GET /api/v1/room/:roomId/messages'
+            getMessages: 'GET /api/v1/room/:roomId/messages',
+	        uploadImages: 'POST /api/v1/upload/image'
         },
     })
 })
