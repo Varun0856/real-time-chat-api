@@ -63,6 +63,10 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
 # Run server
 npm start
+
+# or
+# build and start containers
+docker-compose up --build 
 ```
 
 ---
