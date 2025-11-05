@@ -1,4 +1,4 @@
-import logger from "../utils/winstonLogger";
+import logger from "../utils/winstonLogger.js";
 
 const errorHandler = (err, req, res, next) => {
   logger.error(err);
